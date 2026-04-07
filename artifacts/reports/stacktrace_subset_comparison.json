@@ -1,0 +1,743 @@
+{
+  "study_name": "stacktrace_subset",
+  "paired_intersection_size": 93,
+  "stacktrace_subset_size": 22,
+  "graph_full": {
+    "sample_size": 93,
+    "metrics": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "available": true,
+        "count": 40,
+        "formatted": "40/93 (43.0%, 95% CI 33.4-53.2%)"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "available": true,
+        "count": 33,
+        "formatted": "33/93 (35.5%, 95% CI 26.5-45.6%)"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "available": true,
+        "count": 70,
+        "formatted": "70/93 (75.3%, 95% CI 65.6-82.9%)"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "available": true,
+        "count": 30,
+        "formatted": "30/93 (32.3%, 95% CI 23.6-42.3%)"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "available": true,
+        "count": 25,
+        "formatted": "25/93 (26.9%, 95% CI 18.9-36.7%)"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "available": false,
+        "formatted": "N/A"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "available": true,
+        "count": 26,
+        "formatted": "26/93 (28.0%, 95% CI 19.9-37.8%)"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "available": true,
+        "count": 39,
+        "formatted": "39/93 (41.9%, 95% CI 32.4-52.1%)"
+      }
+    ],
+    "repo_breakdown": [
+      {
+        "repo_name": "astropy/astropy",
+        "sample_size": 4,
+        "semantic_localization_match": "3/4 (75.0%, 95% CI 30.1-95.4%)",
+        "weak_found_issue": "3/4 (75.0%, 95% CI 30.1-95.4%)"
+      },
+      {
+        "repo_name": "django/django",
+        "sample_size": 38,
+        "semantic_localization_match": "11/38 (28.9%, 95% CI 17.0-44.8%)",
+        "weak_found_issue": "14/38 (36.8%, 95% CI 23.4-52.7%)"
+      },
+      {
+        "repo_name": "matplotlib/matplotlib",
+        "sample_size": 8,
+        "semantic_localization_match": "4/8 (50.0%, 95% CI 21.5-78.5%)",
+        "weak_found_issue": "4/8 (50.0%, 95% CI 21.5-78.5%)"
+      },
+      {
+        "repo_name": "mwaskom/seaborn",
+        "sample_size": 3,
+        "semantic_localization_match": "1/3 (33.3%, 95% CI 6.1-79.2%)",
+        "weak_found_issue": "2/3 (66.7%, 95% CI 20.8-93.9%)"
+      },
+      {
+        "repo_name": "pallets/flask",
+        "sample_size": 3,
+        "semantic_localization_match": "2/3 (66.7%, 95% CI 20.8-93.9%)",
+        "weak_found_issue": "2/3 (66.7%, 95% CI 20.8-93.9%)"
+      },
+      {
+        "repo_name": "psf/requests",
+        "sample_size": 4,
+        "semantic_localization_match": "0/4 (0.0%, 95% CI 0.0-49.0%)",
+        "weak_found_issue": "2/4 (50.0%, 95% CI 15.0-85.0%)"
+      },
+      {
+        "repo_name": "pydata/xarray",
+        "sample_size": 4,
+        "semantic_localization_match": "0/4 (0.0%, 95% CI 0.0-49.0%)",
+        "weak_found_issue": "0/4 (0.0%, 95% CI 0.0-49.0%)"
+      },
+      {
+        "repo_name": "pylint-dev/pylint",
+        "sample_size": 4,
+        "semantic_localization_match": "0/4 (0.0%, 95% CI 0.0-49.0%)",
+        "weak_found_issue": "0/4 (0.0%, 95% CI 0.0-49.0%)"
+      },
+      {
+        "repo_name": "pytest-dev/pytest",
+        "sample_size": 8,
+        "semantic_localization_match": "1/8 (12.5%, 95% CI 2.2-47.1%)",
+        "weak_found_issue": "2/8 (25.0%, 95% CI 7.1-59.1%)"
+      },
+      {
+        "repo_name": "scikit-learn/scikit-learn",
+        "sample_size": 9,
+        "semantic_localization_match": "6/9 (66.7%, 95% CI 35.4-87.9%)",
+        "weak_found_issue": "7/9 (77.8%, 95% CI 45.3-93.7%)"
+      },
+      {
+        "repo_name": "sphinx-doc/sphinx",
+        "sample_size": 7,
+        "semantic_localization_match": "2/7 (28.6%, 95% CI 8.2-64.1%)",
+        "weak_found_issue": "3/7 (42.9%, 95% CI 15.8-75.0%)"
+      },
+      {
+        "repo_name": "sympy/sympy",
+        "sample_size": 1,
+        "semantic_localization_match": "0/1 (0.0%, 95% CI 0.0-79.3%)",
+        "weak_found_issue": "0/1 (0.0%, 95% CI 0.0-79.3%)"
+      }
+    ],
+    "failure_taxonomy": [
+      {
+        "bucket": "retrieval missed correct file",
+        "count": 51
+      },
+      {
+        "bucket": "localized successfully",
+        "count": 39
+      },
+      {
+        "bucket": "summary understood issue but named wrong implementation site",
+        "count": 2
+      },
+      {
+        "bucket": "selector drifted away from summary",
+        "count": 1
+      }
+    ]
+  },
+  "graph_subset": {
+    "sample_size": 22,
+    "metrics": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "available": true,
+        "count": 12,
+        "formatted": "12/22 (54.5%, 95% CI 34.7-73.1%)"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "available": true,
+        "count": 8,
+        "formatted": "8/22 (36.4%, 95% CI 19.7-57.0%)"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "available": true,
+        "count": 18,
+        "formatted": "18/22 (81.8%, 95% CI 61.5-92.7%)"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "available": true,
+        "count": 8,
+        "formatted": "8/22 (36.4%, 95% CI 19.7-57.0%)"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "available": true,
+        "count": 5,
+        "formatted": "5/22 (22.7%, 95% CI 10.1-43.4%)"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "available": false,
+        "formatted": "N/A"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "available": true,
+        "count": 9,
+        "formatted": "9/22 (40.9%, 95% CI 23.3-61.3%)"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "available": true,
+        "count": 11,
+        "formatted": "11/22 (50.0%, 95% CI 30.7-69.3%)"
+      }
+    ],
+    "repo_breakdown": [
+      {
+        "repo_name": "astropy/astropy",
+        "sample_size": 1,
+        "semantic_localization_match": "1/1 (100.0%, 95% CI 20.7-100.0%)",
+        "weak_found_issue": "1/1 (100.0%, 95% CI 20.7-100.0%)"
+      },
+      {
+        "repo_name": "django/django",
+        "sample_size": 9,
+        "semantic_localization_match": "1/9 (11.1%, 95% CI 2.0-43.5%)",
+        "weak_found_issue": "3/9 (33.3%, 95% CI 12.1-64.6%)"
+      },
+      {
+        "repo_name": "matplotlib/matplotlib",
+        "sample_size": 5,
+        "semantic_localization_match": "3/5 (60.0%, 95% CI 23.1-88.2%)",
+        "weak_found_issue": "3/5 (60.0%, 95% CI 23.1-88.2%)"
+      },
+      {
+        "repo_name": "mwaskom/seaborn",
+        "sample_size": 2,
+        "semantic_localization_match": "0/2 (0.0%, 95% CI 0.0-65.8%)",
+        "weak_found_issue": "1/2 (50.0%, 95% CI 9.5-90.5%)"
+      },
+      {
+        "repo_name": "pylint-dev/pylint",
+        "sample_size": 1,
+        "semantic_localization_match": "0/1 (0.0%, 95% CI 0.0-79.3%)",
+        "weak_found_issue": "0/1 (0.0%, 95% CI 0.0-79.3%)"
+      },
+      {
+        "repo_name": "pytest-dev/pytest",
+        "sample_size": 1,
+        "semantic_localization_match": "0/1 (0.0%, 95% CI 0.0-79.3%)",
+        "weak_found_issue": "0/1 (0.0%, 95% CI 0.0-79.3%)"
+      },
+      {
+        "repo_name": "scikit-learn/scikit-learn",
+        "sample_size": 3,
+        "semantic_localization_match": "3/3 (100.0%, 95% CI 43.8-100.0%)",
+        "weak_found_issue": "3/3 (100.0%, 95% CI 43.8-100.0%)"
+      }
+    ],
+    "failure_taxonomy": [
+      {
+        "bucket": "localized successfully",
+        "count": 11
+      },
+      {
+        "bucket": "retrieval missed correct file",
+        "count": 10
+      },
+      {
+        "bucket": "summary understood issue but named wrong implementation site",
+        "count": 1
+      }
+    ]
+  },
+  "workflow_full": {
+    "sample_size": 93,
+    "metrics": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "available": true,
+        "count": 76,
+        "formatted": "76/93 (81.7%, 95% CI 72.7-88.3%)"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "available": true,
+        "count": 65,
+        "formatted": "65/93 (69.9%, 95% CI 59.9-78.3%)"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "available": true,
+        "count": 81,
+        "formatted": "81/93 (87.1%, 95% CI 78.8-92.5%)"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "available": true,
+        "count": 62,
+        "formatted": "62/93 (66.7%, 95% CI 56.6-75.4%)"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "available": true,
+        "count": 55,
+        "formatted": "55/93 (59.1%, 95% CI 49.0-68.6%)"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "available": true,
+        "count": 55,
+        "formatted": "55/93 (59.1%, 95% CI 49.0-68.6%)"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "available": true,
+        "count": 53,
+        "formatted": "53/93 (57.0%, 95% CI 46.8-66.6%)"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "available": true,
+        "count": 74,
+        "formatted": "74/93 (79.6%, 95% CI 70.3-86.5%)"
+      }
+    ],
+    "repo_breakdown": [
+      {
+        "repo_name": "astropy/astropy",
+        "sample_size": 4,
+        "semantic_localization_match": "4/4 (100.0%, 95% CI 51.0-100.0%)",
+        "weak_found_issue": "4/4 (100.0%, 95% CI 51.0-100.0%)"
+      },
+      {
+        "repo_name": "django/django",
+        "sample_size": 38,
+        "semantic_localization_match": "27/38 (71.1%, 95% CI 55.2-83.0%)",
+        "weak_found_issue": "34/38 (89.5%, 95% CI 75.9-95.8%)"
+      },
+      {
+        "repo_name": "matplotlib/matplotlib",
+        "sample_size": 8,
+        "semantic_localization_match": "3/8 (37.5%, 95% CI 13.7-69.4%)",
+        "weak_found_issue": "5/8 (62.5%, 95% CI 30.6-86.3%)"
+      },
+      {
+        "repo_name": "mwaskom/seaborn",
+        "sample_size": 3,
+        "semantic_localization_match": "2/3 (66.7%, 95% CI 20.8-93.9%)",
+        "weak_found_issue": "2/3 (66.7%, 95% CI 20.8-93.9%)"
+      },
+      {
+        "repo_name": "pallets/flask",
+        "sample_size": 3,
+        "semantic_localization_match": "3/3 (100.0%, 95% CI 43.8-100.0%)",
+        "weak_found_issue": "3/3 (100.0%, 95% CI 43.8-100.0%)"
+      },
+      {
+        "repo_name": "psf/requests",
+        "sample_size": 4,
+        "semantic_localization_match": "3/4 (75.0%, 95% CI 30.1-95.4%)",
+        "weak_found_issue": "3/4 (75.0%, 95% CI 30.1-95.4%)"
+      },
+      {
+        "repo_name": "pydata/xarray",
+        "sample_size": 4,
+        "semantic_localization_match": "3/4 (75.0%, 95% CI 30.1-95.4%)",
+        "weak_found_issue": "3/4 (75.0%, 95% CI 30.1-95.4%)"
+      },
+      {
+        "repo_name": "pylint-dev/pylint",
+        "sample_size": 4,
+        "semantic_localization_match": "1/4 (25.0%, 95% CI 4.6-69.9%)",
+        "weak_found_issue": "2/4 (50.0%, 95% CI 15.0-85.0%)"
+      },
+      {
+        "repo_name": "pytest-dev/pytest",
+        "sample_size": 8,
+        "semantic_localization_match": "3/8 (37.5%, 95% CI 13.7-69.4%)",
+        "weak_found_issue": "3/8 (37.5%, 95% CI 13.7-69.4%)"
+      },
+      {
+        "repo_name": "scikit-learn/scikit-learn",
+        "sample_size": 9,
+        "semantic_localization_match": "9/9 (100.0%, 95% CI 70.1-100.0%)",
+        "weak_found_issue": "9/9 (100.0%, 95% CI 70.1-100.0%)"
+      },
+      {
+        "repo_name": "sphinx-doc/sphinx",
+        "sample_size": 7,
+        "semantic_localization_match": "3/7 (42.9%, 95% CI 15.8-75.0%)",
+        "weak_found_issue": "5/7 (71.4%, 95% CI 35.9-91.8%)"
+      },
+      {
+        "repo_name": "sympy/sympy",
+        "sample_size": 1,
+        "semantic_localization_match": "1/1 (100.0%, 95% CI 20.7-100.0%)",
+        "weak_found_issue": "1/1 (100.0%, 95% CI 20.7-100.0%)"
+      }
+    ],
+    "failure_taxonomy": [
+      {
+        "bucket": "localized successfully",
+        "count": 62
+      },
+      {
+        "bucket": "deterministic candidate discovery missed correct file",
+        "count": 19
+      },
+      {
+        "bucket": "file chosen correctly but region selection missed",
+        "count": 4
+      },
+      {
+        "bucket": "comparison preferred wrong file despite good evidence",
+        "count": 4
+      },
+      {
+        "bucket": "issue likely requires runtime execution/reproduction",
+        "count": 2
+      },
+      {
+        "bucket": "LLM summary ignored strong evidence",
+        "count": 1
+      },
+      {
+        "bucket": "selector chose wrong target from correct candidate set",
+        "count": 1
+      }
+    ]
+  },
+  "workflow_subset": {
+    "sample_size": 22,
+    "metrics": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "available": true,
+        "count": 18,
+        "formatted": "18/22 (81.8%, 95% CI 61.5-92.7%)"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "available": true,
+        "count": 13,
+        "formatted": "13/22 (59.1%, 95% CI 38.7-76.7%)"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "available": true,
+        "count": 18,
+        "formatted": "18/22 (81.8%, 95% CI 61.5-92.7%)"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "available": true,
+        "count": 12,
+        "formatted": "12/22 (54.5%, 95% CI 34.7-73.1%)"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "available": true,
+        "count": 13,
+        "formatted": "13/22 (59.1%, 95% CI 38.7-76.7%)"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "available": true,
+        "count": 13,
+        "formatted": "13/22 (59.1%, 95% CI 38.7-76.7%)"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "available": true,
+        "count": 11,
+        "formatted": "11/22 (50.0%, 95% CI 30.7-69.3%)"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "available": true,
+        "count": 17,
+        "formatted": "17/22 (77.3%, 95% CI 56.6-89.9%)"
+      }
+    ],
+    "repo_breakdown": [
+      {
+        "repo_name": "astropy/astropy",
+        "sample_size": 1,
+        "semantic_localization_match": "1/1 (100.0%, 95% CI 20.7-100.0%)",
+        "weak_found_issue": "1/1 (100.0%, 95% CI 20.7-100.0%)"
+      },
+      {
+        "repo_name": "django/django",
+        "sample_size": 9,
+        "semantic_localization_match": "3/9 (33.3%, 95% CI 12.1-64.6%)",
+        "weak_found_issue": "7/9 (77.8%, 95% CI 45.3-93.7%)"
+      },
+      {
+        "repo_name": "matplotlib/matplotlib",
+        "sample_size": 5,
+        "semantic_localization_match": "3/5 (60.0%, 95% CI 23.1-88.2%)",
+        "weak_found_issue": "4/5 (80.0%, 95% CI 37.6-96.4%)"
+      },
+      {
+        "repo_name": "mwaskom/seaborn",
+        "sample_size": 2,
+        "semantic_localization_match": "2/2 (100.0%, 95% CI 34.2-100.0%)",
+        "weak_found_issue": "2/2 (100.0%, 95% CI 34.2-100.0%)"
+      },
+      {
+        "repo_name": "pylint-dev/pylint",
+        "sample_size": 1,
+        "semantic_localization_match": "0/1 (0.0%, 95% CI 0.0-79.3%)",
+        "weak_found_issue": "0/1 (0.0%, 95% CI 0.0-79.3%)"
+      },
+      {
+        "repo_name": "pytest-dev/pytest",
+        "sample_size": 1,
+        "semantic_localization_match": "0/1 (0.0%, 95% CI 0.0-79.3%)",
+        "weak_found_issue": "0/1 (0.0%, 95% CI 0.0-79.3%)"
+      },
+      {
+        "repo_name": "scikit-learn/scikit-learn",
+        "sample_size": 3,
+        "semantic_localization_match": "3/3 (100.0%, 95% CI 43.8-100.0%)",
+        "weak_found_issue": "3/3 (100.0%, 95% CI 43.8-100.0%)"
+      }
+    ],
+    "failure_taxonomy": [
+      {
+        "bucket": "localized successfully",
+        "count": 12
+      },
+      {
+        "bucket": "deterministic candidate discovery missed correct file",
+        "count": 5
+      },
+      {
+        "bucket": "file chosen correctly but region selection missed",
+        "count": 2
+      },
+      {
+        "bucket": "comparison preferred wrong file despite good evidence",
+        "count": 2
+      },
+      {
+        "bucket": "issue likely requires runtime execution/reproduction",
+        "count": 1
+      }
+    ]
+  },
+  "deltas": {
+    "graph_full_to_subset": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "from": "40/93 (43.0%, 95% CI 33.4-53.2%)",
+        "to": "12/22 (54.5%, 95% CI 34.7-73.1%)",
+        "delta": "+11.5 pts"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "from": "33/93 (35.5%, 95% CI 26.5-45.6%)",
+        "to": "8/22 (36.4%, 95% CI 19.7-57.0%)",
+        "delta": "+0.9 pts"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "from": "70/93 (75.3%, 95% CI 65.6-82.9%)",
+        "to": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "delta": "+6.5 pts"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "from": "30/93 (32.3%, 95% CI 23.6-42.3%)",
+        "to": "8/22 (36.4%, 95% CI 19.7-57.0%)",
+        "delta": "+4.1 pts"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "from": "25/93 (26.9%, 95% CI 18.9-36.7%)",
+        "to": "5/22 (22.7%, 95% CI 10.1-43.4%)",
+        "delta": "-4.2 pts"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "delta": "N/A"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "from": "26/93 (28.0%, 95% CI 19.9-37.8%)",
+        "to": "9/22 (40.9%, 95% CI 23.3-61.3%)",
+        "delta": "+13.0 pts"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "from": "39/93 (41.9%, 95% CI 32.4-52.1%)",
+        "to": "11/22 (50.0%, 95% CI 30.7-69.3%)",
+        "delta": "+8.1 pts"
+      }
+    ],
+    "workflow_full_to_subset": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "from": "76/93 (81.7%, 95% CI 72.7-88.3%)",
+        "to": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "delta": "+0.1 pts"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "from": "65/93 (69.9%, 95% CI 59.9-78.3%)",
+        "to": "13/22 (59.1%, 95% CI 38.7-76.7%)",
+        "delta": "-10.8 pts"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "from": "81/93 (87.1%, 95% CI 78.8-92.5%)",
+        "to": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "delta": "-5.3 pts"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "from": "62/93 (66.7%, 95% CI 56.6-75.4%)",
+        "to": "12/22 (54.5%, 95% CI 34.7-73.1%)",
+        "delta": "-12.1 pts"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "from": "55/93 (59.1%, 95% CI 49.0-68.6%)",
+        "to": "13/22 (59.1%, 95% CI 38.7-76.7%)",
+        "delta": "-0.0 pts"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "from": "55/93 (59.1%, 95% CI 49.0-68.6%)",
+        "to": "13/22 (59.1%, 95% CI 38.7-76.7%)",
+        "delta": "-0.0 pts"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "from": "53/93 (57.0%, 95% CI 46.8-66.6%)",
+        "to": "11/22 (50.0%, 95% CI 30.7-69.3%)",
+        "delta": "-7.0 pts"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "from": "74/93 (79.6%, 95% CI 70.3-86.5%)",
+        "to": "17/22 (77.3%, 95% CI 56.6-89.9%)",
+        "delta": "-2.3 pts"
+      }
+    ],
+    "graph_subset_to_workflow_subset": [
+      {
+        "key": "semantic_correct_file",
+        "label": "Semantic correct file",
+        "from": "12/22 (54.5%, 95% CI 34.7-73.1%)",
+        "to": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "delta": "+27.3 pts"
+      },
+      {
+        "key": "semantic_correct_function",
+        "label": "Semantic correct function",
+        "from": "8/22 (36.4%, 95% CI 19.7-57.0%)",
+        "to": "13/22 (59.1%, 95% CI 38.7-76.7%)",
+        "delta": "+22.7 pts"
+      },
+      {
+        "key": "semantic_correct_fix_mechanism",
+        "label": "Semantic correct fix mechanism",
+        "from": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "to": "18/22 (81.8%, 95% CI 61.5-92.7%)",
+        "delta": "+0.0 pts"
+      },
+      {
+        "key": "semantic_localization_match",
+        "label": "Semantic localization match",
+        "from": "8/22 (36.4%, 95% CI 19.7-57.0%)",
+        "to": "12/22 (54.5%, 95% CI 34.7-73.1%)",
+        "delta": "+18.2 pts"
+      },
+      {
+        "key": "retrieved_top3_file_match",
+        "label": "Retrieved top-3 file match",
+        "from": "5/22 (22.7%, 95% CI 10.1-43.4%)",
+        "to": "13/22 (59.1%, 95% CI 38.7-76.7%)",
+        "delta": "+36.4 pts"
+      },
+      {
+        "key": "merged_candidate_top3_contains_gold_file",
+        "label": "Merged candidate top-3 contains gold file",
+        "delta": "N/A"
+      },
+      {
+        "key": "target_in_gold_file",
+        "label": "Final target in gold file",
+        "from": "9/22 (40.9%, 95% CI 23.3-61.3%)",
+        "to": "11/22 (50.0%, 95% CI 30.7-69.3%)",
+        "delta": "+9.1 pts"
+      },
+      {
+        "key": "weak_graph_found_issue",
+        "label": "Weak graph/workflow found issue",
+        "from": "11/22 (50.0%, 95% CI 30.7-69.3%)",
+        "to": "17/22 (77.3%, 95% CI 56.6-89.9%)",
+        "delta": "+27.3 pts"
+      }
+    ]
+  },
+  "interpretation": [
+    "Graph-only does not improve materially on stack-trace issues relative to its full-sample result. This strengthens the negative claim that graph context alone is insufficient even when issues include execution anchors.",
+    "The tool-first workflow remains clearly stronger than graph-only on the stack-trace subset, so stack traces do not make graph-only retrieval competitive with the broader workflow."
+  ]
+}

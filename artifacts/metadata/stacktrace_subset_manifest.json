@@ -1,0 +1,247 @@
+{
+  "study_name": "stacktrace_subset",
+  "metadata_path": "artifacts/metadata/localization_study_95_structural_reused_ready.jsonl",
+  "graph_results_path": "artifacts/reports/localization_study_95_structural_reused_ready.json",
+  "workflow_results_path": "artifacts/reports/developer_workflow_full95_v2_region.json",
+  "paired_intersection_size": 93,
+  "stacktrace_subset_size": 22,
+  "workflow_only_ids_excluded": [
+    "matplotlib__matplotlib-26011",
+    "sympy__sympy-11870"
+  ],
+  "included_instances": [
+    {
+      "instance_id": "astropy__astropy-7746",
+      "repo_name": "astropy/astropy",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-11964",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": true,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame",
+        "test_failure_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-14016",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-14017",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-14238",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "django__django-14580",
+      "repo_name": "django/django",
+      "has_traceback_header": false,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "django__django-14672",
+      "repo_name": "django/django",
+      "has_traceback_header": false,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "django__django-15781",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-16408",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": true,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame",
+        "test_failure_header"
+      ]
+    },
+    {
+      "instance_id": "django__django-16873",
+      "repo_name": "django/django",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": true,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame",
+        "test_failure_header"
+      ]
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-22711",
+      "repo_name": "matplotlib/matplotlib",
+      "has_traceback_header": false,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23299",
+      "repo_name": "matplotlib/matplotlib",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-24265",
+      "repo_name": "matplotlib/matplotlib",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25442",
+      "repo_name": "matplotlib/matplotlib",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25498",
+      "repo_name": "matplotlib/matplotlib",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "mwaskom__seaborn-2848",
+      "repo_name": "mwaskom/seaborn",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3010",
+      "repo_name": "mwaskom/seaborn",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "pylint-dev__pylint-7228",
+      "repo_name": "pylint-dev/pylint",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "pytest-dev__pytest-7168",
+      "repo_name": "pytest-dev/pytest",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10508",
+      "repo_name": "scikit-learn/scikit-learn",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10949",
+      "repo_name": "scikit-learn/scikit-learn",
+      "has_traceback_header": true,
+      "has_python_frame": false,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header"
+      ]
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14894",
+      "repo_name": "scikit-learn/scikit-learn",
+      "has_traceback_header": true,
+      "has_python_frame": true,
+      "has_test_failure_header": false,
+      "matched_stacktrace_rule": [
+        "traceback_header",
+        "python_frame"
+      ]
+    }
+  ]
+}
