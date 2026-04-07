@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it using the metadata below."
+title: "Graph Context Is Not Enough"
+type: software
+authors:
+  - family-names: "Levy"
+    given-names: "Guy"
+repository-code: "https://github.com/LevyGuy/graph-context-is-not-enough"
+url: "https://github.com/LevyGuy/graph-context-is-not-enough"
+abstract: >
+  Code and publication-facing artifacts for a study of graph-first versus
+  developer-workflow localization on a SWE-bench-style benchmark.
+license: "MIT"

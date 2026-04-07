@@ -2,6 +2,10 @@
 
 Code and publication-facing artifacts for a study of repository-level bug localization on a SWE-bench-style benchmark.
 
+Repository:
+
+- [github.com/LevyGuy/graph-context-is-not-enough](https://github.com/LevyGuy/graph-context-is-not-enough)
+
 ## What This Repository Contains
 
 This repository contains:
@@ -87,6 +91,15 @@ Recommended publication setup:
 1. GitHub for source code, scripts, manifests, and paper materials.
 2. Zenodo or similar archive for frozen large artifacts and exact benchmark outputs.
 
+## Citation
+
+This repository includes:
+
+- [CITATION.cff](CITATION.cff)
+- [LICENSE](LICENSE)
+
+If you reference the code in a paper or artifact evaluation, cite the repository and, once available, the frozen artifact DOI.
+
 ## Setup
 
 Install dependencies:
@@ -101,4 +114,4 @@ pip install -r requirements.txt
 
 - Some experimental runtime flows still require per-repository environment setup and are not yet turnkey.
 - Runtime and instrumentation results are exploratory; the static workflow results are the benchmark-backed centerpiece of the current research state.
-- A license file has not yet been selected for public release.
+- The repository is released under the MIT License.

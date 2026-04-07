@@ -541,9 +541,9 @@ This project emphasizes traceability. The submission version of this paper shoul
 - the retrospective and publication-support notes;
 - the scripts used to build reports and subgroup analyses.
 
-For the working draft, these artifacts are referenced as local paths because the paper was written inside the experiment repository. For publication, these links should be replaced by:
+For the working draft, these artifacts were initially referenced as local paths because the paper was written inside the experiment repository. For publication, these links should be replaced by:
 
-- a public GitHub repository for code, manifests, and report-generation scripts; and
+- a public GitHub repository for code, manifests, and report-generation scripts, such as `https://github.com/LevyGuy/graph-context-is-not-enough`; and
 - an archived artifact snapshot, for example on Zenodo or a comparable long-term host, for the exact benchmark outputs used in the paper.
 
 Per-instance prompts, summaries, selector decisions, and other detailed logs are valuable for auditability, but they can be released as artifact bundles rather than embedded directly in the paper.
