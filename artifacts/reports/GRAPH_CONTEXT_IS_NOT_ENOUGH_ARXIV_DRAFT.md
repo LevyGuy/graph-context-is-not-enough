@@ -211,9 +211,7 @@ The issue states that `ModelChoiceField` does not include the invalid value when
 
 #### SCIP-style index evidence
 
-From:
-
-- [index.json](/Users/guylevy/Projects/natural-language-index_2/artifacts/indexes/django__django-13933/index.json)
+From the SCIP-style index generated for the `django__django-13933` workspace:
 
 the document for `django/forms/models.py` includes occurrences such as:
 
@@ -244,9 +242,7 @@ This already tells us that `django/forms/models.py` imports and uses `Validation
 
 #### SQL row with short semantic descriptions
 
-From:
-
-- [localization_study_95_structural_v2_graph.db](/Users/guylevy/Projects/natural-language-index_2/artifacts/localization_study_95_structural_v2_graph.db)
+From the structural graph database built for the v2 localization study:
 
 we can query the same issue and obtain compact semantic rows:
 
@@ -260,9 +256,7 @@ This stage illustrates what the original graph hypothesis was trying to achieve:
 
 #### Developer-style prompt built from the gathered evidence
 
-From:
-
-- [summary_prompt.md](/Users/guylevy/Projects/natural-language-index_2/artifacts/logs/developer_workflow_full95_v2_region/django__django-13933/summary_prompt.md)
+From the rendered issue-time summary prompt for this instance:
 
 the rendered prompt contains:
 
@@ -320,9 +314,7 @@ These stages are included in the paper as exploratory evidence, not as a validat
 
 ### 6.1 RQ1: Graph-Only Context Is Not Enough
 
-Our old graph-first 95-style baseline is summarized in:
-
-- [localization_study_95_structural_reused_ready.md](/Users/guylevy/Projects/natural-language-index_2/artifacts/reports/localization_study_95_structural_reused_ready.md)
+Our old graph-first 95-style baseline is summarized in the report `localization_study_95_structural_reused_ready.md`.
 
 On 93 completed instances, the graph-first pipeline achieved:
 
@@ -353,9 +345,7 @@ This was an improvement over the older graph-only baseline, but it still fell sh
 
 ### 6.3 RQ2: The Static Developer Workflow Materially Outperforms Graph-First Retrieval
 
-Our best static workflow result is summarized in:
-
-- [developer_workflow_full95_v2_region.md](/Users/guylevy/Projects/natural-language-index_2/artifacts/reports/developer_workflow_full95_v2_region.md)
+Our best static workflow result is summarized in the report `developer_workflow_full95_v2_region.md`.
 
 On 95 completed instances, the workflow achieved:
 
@@ -401,9 +391,7 @@ The subgroup definition was fixed in advance:
 - include an issue if the text contains `Traceback`, a Python stack frame of the form `File "…", line N`, or a test failure header such as `FAIL: ... (...)` or `ERROR: ... (...)`;
 - exclude generic mentions of `error` or `exception` without a trace-like structure.
 
-The paired comparison covers 22 issues present in both the graph-first and tool-first reports:
-
-- [stacktrace_subset_comparison.md](/Users/guylevy/Projects/natural-language-index_2/artifacts/reports/stacktrace_subset_comparison.md)
+The paired comparison covers 22 issues present in both the graph-first and tool-first reports, and is summarized in `stacktrace_subset_comparison.md`.
 
 Results:
 
@@ -436,9 +424,7 @@ This answers RQ3 in part: the broad static workflow helped substantially, but th
 
 ### 7.1 Naive Runtime Fallback Failed at Benchmark Scale
 
-We first evaluated a selective runtime fallback on a 29-instance failed tail:
-
-- [/tmp/runtime_failed_tail.md](/tmp/runtime_failed_tail.md)
+We first evaluated a selective runtime fallback on a 29-instance failed tail benchmark slice.
 
 Results were poor:
 
@@ -455,9 +441,7 @@ This was not evidence that runtime is useless. It was evidence that naive runtim
 
 ### 7.2 Targeted Runtime Improvements Produced Better Signal
 
-After improving command-family inference, interpreter handling, temporary config support, and traceback parsing, we obtained stronger runtime behavior on selected smoke cases. For example, in:
-
-- [/tmp/runtime_smoke_pylint7228_v4.md](/tmp/runtime_smoke_pylint7228_v4.md)
+After improving command-family inference, interpreter handling, temporary config support, and traceback parsing, we obtained stronger runtime behavior on selected smoke cases. One representative example was the `pylint-dev__pylint-7228` smoke run.
 
 the runtime system:
 
