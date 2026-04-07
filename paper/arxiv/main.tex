@@ -1,0 +1,441 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[numbers]{natbib}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{enumitem}
+\usepackage{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\title{Graph Context Is Not Enough:\\From Graph Retrieval to Developer Workflow for SWE-bench Localization}
+
+\author{
+  Guy Levy\\
+  \texttt{replace-with-final-affiliation}\\
+  \texttt{replace-with-final-email}
+}
+
+\date{April 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Repository-level software engineering benchmarks such as SWE-bench have intensified interest in context engineering for bug localization and repair. A common hypothesis is that structural code graphs, such as SCIP- or AST-derived repository graphs, can provide the large language model (LLM) with the right context to localize issues reliably. The intuition behind this hypothesis is twofold: first, that a small accurate context should outperform a large noisy repository dump; second, that if structural facts are converted into a short developer-style natural-language story, the LLM should reason about the issue more effectively. We evaluate that hypothesis through a staged empirical study. We first build a graph-centric localization pipeline over a stratified SWE-bench-style sample and show that graph-only structural context is not sufficient as the primary localization strategy: on a 93-instance baseline, graph-first localization achieves 32.3\% semantic localization match despite 75.3\% fix-mechanism correctness. We then redesign the system around a broader static developer workflow consisting of anchor extraction, symbol lookup, file lookup, repository grep, bounded graph expansion, evidence synthesis, file-first comparison, and staged region selection. On a 95-instance sample, this tool-first workflow improves semantic localization match to 66.3\%, semantic correct file to 82.1\%, semantic correct function to 69.5\%, and semantic correct fix mechanism to 87.4\%. We also perform a paired stack-trace subgroup analysis on 22 issues whose problem statements contain explicit execution anchors; graph-only semantic localization rises only modestly to 36.4\%, while the tool-first workflow remains clearly stronger at 54.5\%. We further study runtime augmentation and instrumented debugging. Naive runtime fallback initially fails to help because command inference and execution environments are brittle; later targeted runtime improvements recover meaningful traceback signal on selected cases but remain preliminary at benchmark scale. The main contribution of this work is an empirical negative-to-positive result: graph context alone is not enough, while a broader developer-workflow abstraction materially improves localization.
+\end{abstract}
+
+\section{Introduction}
+
+Large language models are increasingly evaluated on repository-level software engineering tasks, where success depends not only on code generation quality but also on effective problem localization. SWE-bench formalized this setting by pairing real GitHub issues with repository snapshots and gold patches, creating a challenging benchmark for automated issue resolution \citep{jimenez2023swebench}. In practice, however, issue resolution remains bottlenecked by localization: before an agent can edit code correctly, it must identify the right file, function, or region.
+
+This paper began from a specific hypothesis: structural graph context should substantially improve LLM bug understanding and localization.
+
+The intuition had two parts. First, we expected small accurate context to beat large noisy context. Repository-scale prompts often mix the real implementation site with many lexically similar but causally irrelevant files. If a graph could compress the repository into a smaller evidence packet centered on relevant symbols, ownership relations, imports, and nearby blocks, the model should face a better signal-to-noise ratio than when reading large raw code excerpts.
+
+Second, we expected developer-style natural-language explanations to help the model use that compressed context. LLMs are trained on code and natural language, and in practice they often reason better when evidence is presented as a coherent story rather than as disconnected code fragments. The hoped-for chain was: deterministic structural tools recover the relevant facts; those facts are converted into a compact developer-oriented explanation of the issue; and the LLM uses that explanation to choose the right implementation site and fix mechanism.
+
+That hypothesis did not survive contact with the benchmark.
+
+We found three important things. First, graph-only localization underperformed badly in its strong form. Even after fixing major indexing problems, the graph-centric pipeline was much better at recovering the broad fix mechanism than at grounding the issue to the correct implementation site. Second, a broader static workflow, closer to how experienced developers actually debug issues, produced much larger gains. Deterministic search tools such as file lookup, symbol lookup, and repository grep were more useful than graph retrieval alone, and graph structure was most valuable as a supporting tool rather than the primary retrieval engine. Third, the remaining hard tail increasingly appeared runtime-sensitive, but naive runtime augmentation failed because reaching the correct execution path proved substantially harder than anticipated.
+
+This is therefore not a paper claiming that graph context solves SWE-bench localization. It is a paper showing that:
+
+\begin{enumerate}[leftmargin=1.5em]
+\item graph-centric context engineering is insufficient as the main localization strategy;
+\item a broader static developer workflow materially outperforms graph-only retrieval; and
+\item runtime debugging remains the next unresolved frontier.
+\end{enumerate}
+
+\subsection{Research Questions}
+
+We organize the paper around three research questions.
+
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{RQ1.} How effective is graph-only structural context for SWE-bench-style bug localization?
+\item \textbf{RQ2.} Does a broader static developer workflow materially outperform graph-first retrieval?
+\item \textbf{RQ3.} What failure modes remain after the static workflow redesign, and what do they imply for the next generation of software engineering agents?
+\end{itemize}
+
+\subsection{Main Contributions}
+
+This paper makes four contributions.
+
+\begin{enumerate}[leftmargin=1.5em]
+\item It presents a negative empirical result: graph-only structural context is not sufficient as the primary localization strategy for SWE-bench-style bug localization.
+\item It introduces and evaluates a broader static developer workflow that more than doubles semantic localization on our large-sample comparison ($32.3\% \rightarrow 66.3\%$).
+\item It provides a detailed failure taxonomy spanning candidate discovery, graph expansion, file comparison, region selection, and runtime-sensitive failures.
+\item It documents operational lessons from semantic enrichment, structural indexing, static tool design, runtime fallback, and temporary instrumented debugging.
+\end{enumerate}
+
+Throughout the paper, we distinguish between three levels of claim strength: benchmark-backed graph-first and static tool-first results; benchmark-backed subgroup analysis on stack-trace issues; and exploratory runtime and instrumentation findings that are operationally informative but not yet benchmark-positive.
+
+\section{Background and Motivation}
+
+SWE-bench evaluates whether a model or agent can resolve real GitHub issues in real repositories \citep{jimenez2023swebench}. This setting is difficult because a model must do more than generate plausible code. It must identify the relevant implementation site, understand the issue in the context of repository structure, and often reason across files, tests, and framework layers.
+
+A popular response to this challenge is graph-centric context engineering: build a code graph, retrieve a subgraph around issue anchors, and feed that structured context to the LLM. This idea is attractive for two reasons. First, graphs are deterministic and relatively interpretable. Second, graph retrieval appears better aligned with software structure than raw token similarity alone.
+
+There was also a more practical motivation behind our initial design. The project did not begin from the belief that graphs are elegant, but from the belief that context compression matters. Large-context prompting tends to degrade when a repository dump contains too many superficially relevant but behaviorally irrelevant files. A graph seemed like a principled way to compress the repository into a small, structured story. If that story could then be translated into concise natural language, it would align well with how LLMs appear to use developer-facing explanations.
+
+However, graph-centric approaches make a strong assumption: repository structure is the dominant missing ingredient. Our work tests that assumption directly rather than taking it for granted.
+
+\section{Related Work}
+
+Our work sits at the intersection of repository-level software engineering benchmarks, issue localization, and coding-agent systems.
+
+SWE-bench introduced a large repository-level benchmark for real-world GitHub issues and highlighted the difficulty of the task even for strong models \citep{jimenez2023swebench}. Since then, a growing body of work has explored localization and repair strategies on SWE-bench and related benchmarks. CoSIL, for example, studies issue localization via LLM-driven repository graph searching and reports strong top-1 localization results using graph-guided search \citep{jiang2025cosil}. At the same time, recent analyses have questioned how benchmark outcomes should be interpreted, including concerns about leaderboard analysis \citep{martinez2025dissecting}, contamination and memorization \citep{liang2025illusion}, and behavioral differences among coding agents \citep{mehtiyev2026beyond}.
+
+Our paper differs from prior graph-guided localization work in two ways. First, it is organized explicitly around a failed strong-form graph hypothesis. Second, it compares graph-centric retrieval to a broader static developer workflow built from deterministic developer tools and staged LLM synthesis, rather than positioning graph search as the dominant retrieval mechanism.
+
+\section{Experimental Setup}
+
+\subsection{Benchmark Setting}
+
+We work on a stratified SWE-bench-style sample drawn from the same repository family used throughout the project. The experimental program evolved over time:
+
+\begin{itemize}[leftmargin=1.5em]
+\item early graph studies used a 120-instance planning target;
+\item later graph and workflow evaluations focused on a stable 95-instance sample;
+\item some intermediate iterations used smaller subsets, including a stable 37-instance ready subset and targeted failed-tail subsets.
+\end{itemize}
+
+For the primary large-sample comparison in this paper:
+
+\begin{itemize}[leftmargin=1.5em]
+\item the graph-first baseline report contains 93 completed instances;
+\item the best static developer-workflow report contains 95 completed instances.
+\end{itemize}
+
+We retain this asymmetry because the experiments were run in sequence during development, but we report the exact denominators for every metric.
+
+\subsection{Evaluation Metrics}
+
+We use both exact and semantic metrics.
+
+\paragraph{Candidate discovery and ranking.}
+Retrieved top-1 file match, retrieved top-3 file match, retrieved top-5 file match, merged candidate top-3 contains gold file, and merged candidate top-5 contains gold file ask whether the correct file appears in the retrieved candidate set before final selection. For example, ``retrieved top-3 file match'' means that at least one gold file appears among the first three files returned by the retrieval stage.
+
+\paragraph{Selection and grounding.}
+Selected file is gold, selected region is gold, final target in gold file, and final target within gold hunk ask whether the final selector picked the correct implementation location. ``Selected file is gold'' means the chosen file matches the gold file. ``Selected region is gold'' is stricter: the selected symbol or region must also align with the gold implementation region. ``Final target within gold hunk'' is the strictest exact metric because it requires overlap with the patch hunk itself.
+
+\paragraph{Semantic evaluation.}
+Semantic correct file, semantic correct function, semantic correct fix mechanism, and semantic localization match are broader than exact span overlap. ``Semantic correct file'' means the chosen file is judged to be the right conceptual implementation site even if the exact edit hunk differs from the gold patch. ``Semantic correct function'' asks the same question at the function or method level. ``Semantic correct fix mechanism'' asks whether the system understood what kind of change was needed, such as error-message formatting, migration serialization, validation logic, or query lookup behavior. ``Semantic localization match'' is the strongest semantic metric: the system must get the file, function or region, and fix mechanism all conceptually correct.
+
+We also track a weaker issue-finding proxy, weak workflow found issue. This metric is intentionally permissive. It records whether the system identified the right implementation area or issue family strongly enough to be useful for a human or downstream agent, even if the final file or region selection was not fully correct.
+
+\subsection{Reporting and Confidence Intervals}
+
+All aggregate reports include 95\% confidence intervals. We also maintain per-instance artifacts, explicit failure taxonomy labels, per-repo breakdowns, and stage-level metrics for candidate discovery, expansion, comparison, and selection.
+
+\section{Systems and Development Stages}
+
+The paper compares multiple stages of system design rather than a single frozen agent.
+
+\subsection{Graph-First Study Infrastructure}
+
+We first built study infrastructure rather than changing localization logic. This included frozen sample manifests, stratified sampling, report generation, confidence intervals, weak-label metrics, and audit hooks. The goal was to make later engineering iterations measurable rather than anecdotal.
+
+\subsection{Repo-Wide Semantic Enrichment}
+
+Our first implementation path attempted to enrich repository graphs with LLM-written semantic descriptions for symbols and graph nodes. This path failed operationally due to high cost, rate limits, throughput collapse on large repositories such as Django, and poor scalability for benchmark-scale execution. This result is not the main empirical claim of the paper, but it matters methodologically: repo-wide semantic enrichment was not a practical evaluation strategy for this benchmark.
+
+\subsection{Structural-Only Graph Indexing}
+
+We then shifted to a structural-only graph pipeline with issue-time summarization. This required a substantial indexing redesign after discovering a key completeness bug: in \texttt{django\_\_django-11049}, the symbol \texttt{DurationField} was missing from the graph despite being named explicitly in the issue.
+
+That failure revealed an important confound. Weak graph performance was not only a retrieval issue; the graph itself was incomplete.
+
+We therefore moved to an AST-first extractor with top-level classes and functions, nested methods, block extraction for assignments, constants, regexes, conditionals, returns, raises, and try/except, and structural-only storage with span-based retrieval.
+
+\subsection{Tool-First Static Developer Workflow}
+
+After the graph-only reassessment, we redesigned the localization system around a broader static workflow. The resulting pipeline contains:
+
+\begin{enumerate}[leftmargin=1.5em]
+\item issue anchor extraction;
+\item exact symbol search;
+\item exact file/path search;
+\item repository grep / text search;
+\item candidate merge with provenance;
+\item bounded graph expansion from deterministic seeds;
+\item evidence packet rendering;
+\item file-first candidate comparison;
+\item file selection;
+\item region/function selection;
+\item LLM synthesis and semantic judgment.
+\end{enumerate}
+
+Graph structure remains present, but only as one tool in a broader workflow.
+
+\subsection{Concrete Example: From SCIP to SQL Summary to Developer Prompt}
+
+To make the workflow concrete, we use one representative issue, \texttt{django\_\_django-13933}. The issue states that \texttt{ModelChoiceField} does not include the invalid value when raising \texttt{ValidationError}. This case is useful because it shows the intended path from structural index data to graph summaries to a developer-style prompt.
+
+\paragraph{SCIP-style index evidence.}
+The SCIP-style index for \texttt{django/forms/models.py} includes occurrences such as references to \texttt{ValidationError}, \texttt{ValidationError\#code}, and \texttt{ValidationError\#message}. This already tells us that \texttt{django/forms/models.py} imports and uses \texttt{ValidationError}, which makes it structurally relevant. But it does not yet tell us whether this is the correct implementation file or merely an adjacent consumer.
+
+\paragraph{SQL row with short semantic descriptions.}
+The structural graph database produces compact semantic rows for the same issue:
+
+\begin{quote}
+\small
+\texttt{fields\_for\_model} is a function defined in \texttt{django/forms/models.py}. It participates in this module's local control flow and behavior.\\
+\texttt{ModelChoiceField} is a class defined in \texttt{django/forms/models.py}. It groups related behavior and state for this module.
+\end{quote}
+
+This stage illustrates what the original graph hypothesis was trying to achieve: turn structural evidence into a small natural-language summary that can fit comfortably into an issue-time prompt.
+
+\paragraph{Developer-style prompt built from the gathered evidence.}
+The rendered prompt for this instance contains a compact issue brief with extracted anchors (\texttt{ModelChoiceField}, \texttt{ValidationError}, \texttt{ChoiceField}, \texttt{invalid\_choice}), ranked evidence favoring \texttt{django/forms/models.py}, and bounded implementation context showing the relevant symbols \texttt{fields\_for\_model} and \texttt{ModelChoiceField}.
+
+The workflow also generated an explicit natural-language implementation story:
+
+\begin{quote}
+\small
+\textbf{Likely implementation path:}
+\begin{enumerate}[leftmargin=1.5em]
+\item Validation starts in \texttt{ModelChoiceField} and follows the usual field-cleaning path.
+\item The \texttt{invalid\_choice} error is created from \texttt{default\_error\_messages}.
+\item \texttt{ModelMultipleChoiceField} already includes \texttt{\%(value)s} in its \texttt{invalid\_choice} message, but \texttt{ModelChoiceField} does not.
+\item The likely fix is therefore in \texttt{django/forms/models.py}, where \texttt{ModelChoiceField} defines its \texttt{invalid\_choice} message and related validation behavior.
+\end{enumerate}
+\end{quote}
+
+This kind of data-flow story is important because it demonstrates what the project was actually trying to give the LLM: not just a ranked file list, but a compact debugging narrative connecting the issue report to the likely implementation path. The example shows that the project’s core intuition was directionally right: the system works best when it gives the LLM a compact developer-style story rather than a raw repository dump. The key empirical correction is that graph context alone did not reliably generate this story; the successful version required a broader developer workflow.
+
+\subsection{Runtime and Instrumented Debugging}
+
+We later added selective runtime fallback and temporary instrumentation: runtime command inference, traceback parsing, runtime-aware reranking, temporary instrumentation patches applied with \texttt{git apply}, execution and log capture, and exact patch reversion via \texttt{git apply -R}. These stages are included in the paper as exploratory evidence, not as a validated benchmark win.
+
+\section{Results}
+
+\subsection{RQ1: Graph-Only Context Is Not Enough}
+
+On 93 completed instances, the graph-first pipeline achieved:
+
+\begin{itemize}[leftmargin=1.5em]
+\item semantic correct file: 40/93 (43.0\%)
+\item semantic correct function: 33/93 (35.5\%)
+\item semantic correct fix mechanism: 70/93 (75.3\%)
+\item semantic localization match: 30/93 (32.3\%)
+\end{itemize}
+
+The gap between fix-mechanism correctness (75.3\%) and semantic localization (32.3\%) is the most important number in the graph-only phase. It shows that graph-only retrieval often gave the model enough context to infer the broad class of bug, but not enough to ground that understanding to the correct implementation site.
+
+A concrete example is \texttt{django\_\_django-11815}. In that case, the graph-first system correctly inferred a migration-serialization style bug, but its retrieved context still drifted toward adjacent field-related files rather than reliably grounding the issue in \texttt{django/db/migrations/serializer.py}. This is exactly the failure mode suggested by the aggregate numbers: broad mechanism understanding without dependable localization.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Metric & Graph-first baseline & Tool-first workflow \\
+\midrule
+Semantic correct file & 43.0\% & 82.1\% \\
+Semantic correct function & 35.5\% & 69.5\% \\
+Semantic correct fix mechanism & 75.3\% & 87.4\% \\
+Semantic localization match & 32.3\% & 66.3\% \\
+\bottomrule
+\end{tabular}
+\caption{Large-sample comparison between the graph-first baseline (93 completed instances) and the best static developer-workflow system (95 completed instances).}
+\label{tab:main-comparison}
+\end{table}
+
+The graph-only failure taxonomy reinforces this point: 51 instances were labeled retrieval missed correct file, while only 39 were labeled localized successfully. This answers RQ1 directly: graph-only structural context was not sufficient as the primary localization strategy.
+
+\subsection{Intermediate Graph Improvement Did Not Solve Localization}
+
+Even after the AST-first v2 graph redesign, graph-only performance remained limited. On the 37-instance v2 subset, the graph-centric pipeline achieved 89.2\% semantic correct fix mechanism but only 51.4\% semantic localization match. Fixing graph completeness helped, but did not validate the original strong-form hypothesis.
+
+\subsection{RQ2: The Static Developer Workflow Materially Outperforms Graph-First Retrieval}
+
+On 95 completed instances, the best static workflow achieved:
+
+\begin{itemize}[leftmargin=1.5em]
+\item semantic correct file: 78/95 (82.1\%)
+\item semantic correct function: 66/95 (69.5\%)
+\item semantic correct fix mechanism: 83/95 (87.4\%)
+\item semantic localization match: 63/95 (66.3\%)
+\end{itemize}
+
+The cross-phase comparison in Table~\ref{tab:main-comparison} is the central positive result of the paper. The strongest interpretation is not that graphs are useless. It is that graphs are insufficient on their own, while a broader tool-driven workflow is much stronger.
+
+\subsection{Where the Gains Came From}
+
+The large static workflow gains primarily came from better grounding: better file selection, better function or region selection, better candidate discovery via deterministic tools, and better evidence synthesis before LLM reasoning.
+
+This is visible in the workflow’s stage-level metrics:
+
+\begin{itemize}[leftmargin=1.5em]
+\item exact symbol hit contains gold file: 43/95 (45.3\%)
+\item grep hit contains gold file: 57/95 (60.0\%)
+\item merged candidate top-3 contains gold file: 55/95 (57.9\%)
+\item merged candidate top-5 contains gold file: 60/95 (63.2\%)
+\item expanded candidate set contains gold file: 72/95 (75.8\%)
+\end{itemize}
+
+These numbers suggest that deterministic evidence gathering and staged comparison were doing much of the practical work. The graph became more useful after the deterministic seeds were already good.
+
+\subsection{Stack-Trace Subgroup: Graph-Only Still Does Not Become Competitive}
+
+One possible objection to the negative graph-only result is that the full benchmark mixes together issues where graph retrieval is naturally weak with issues where graph retrieval should be more helpful. To test this, we ran a deterministic subgroup analysis over issues whose problem statements already contain explicit execution anchors.
+
+The subgroup definition was fixed in advance:
+
+\begin{itemize}[leftmargin=1.5em]
+\item include an issue if the text contains \texttt{Traceback}, a Python stack frame of the form \texttt{File "...", line N}, or a test failure header such as \texttt{FAIL: ... (...)} or \texttt{ERROR: ... (...)};
+\item exclude generic mentions of \texttt{error} or \texttt{exception} without a trace-like structure.
+\end{itemize}
+
+The paired comparison covers 22 issues present in both the graph-first and tool-first reports.
+
+\begin{table}[t]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Metric & Graph full & Graph trace subset & Workflow full & Workflow trace subset \\
+\midrule
+Semantic correct file & 43.0\% & 54.5\% & 81.7\% & 81.8\% \\
+Semantic correct function & 35.5\% & 36.4\% & 69.9\% & 59.1\% \\
+Semantic correct fix mechanism & 75.3\% & 81.8\% & 87.1\% & 81.8\% \\
+Semantic localization match & 32.3\% & 36.4\% & 66.7\% & 54.5\% \\
+Retrieved top-3 file match & 26.9\% & 22.7\% & 59.1\% & 59.1\% \\
+\bottomrule
+\end{tabular}
+\caption{Stack-trace subgroup comparison on the paired 22-issue subset.}
+\label{tab:stacktrace-subgroup}
+\end{table}
+
+This subgroup does not rescue the graph-only hypothesis. Graph-only semantic localization rises only modestly from 32.3\% to 36.4\%, while the tool-first workflow remains clearly stronger at 54.5\%. This is scientifically useful in two ways. First, it rules out the simpler explanation that graph-only failed merely because many issues lacked execution anchors. Second, it sharpens the paper’s claim: even when issues already contain trace-like evidence, graph-first retrieval still underperforms the broader developer workflow.
+
+\subsection{Remaining Failure Taxonomy in the Static Workflow}
+
+Even after the redesign, failures remained. On the 95-instance workflow result, the main remaining buckets were:
+
+\begin{itemize}[leftmargin=1.5em]
+\item 20 deterministic candidate discovery misses;
+\item 4 comparison preferred wrong file despite good evidence;
+\item 4 file chosen correctly but region selection missed;
+\item 2 issues likely requiring runtime execution or reproduction;
+\item 1 LLM summary ignored strong evidence;
+\item 1 selector chose the wrong target from the correct candidate set.
+\end{itemize}
+
+This answers RQ3 in part: the broad static workflow helped substantially, but the hard tail moved from mechanism understanding toward discovery, selection, and runtime-sensitive behavior.
+
+\section{Runtime and Instrumented Debugging}
+
+\subsection{Naive Runtime Fallback Failed at Benchmark Scale}
+
+We first evaluated a selective runtime fallback on a 29-instance failed-tail benchmark slice. Results were poor: static-only semantic localization was 9/29 (31.0\%), runtime-augmented semantic localization was 0/29, runtime was attempted on 16/29 instances, and no useful tracebacks were produced.
+
+This was not evidence that runtime is useless. It was evidence that naive runtime support was too brittle: repro command inference was weak, commands often failed before reaching the intended path, and repository environments were frequently incomplete for targeted CLI or framework-level probes.
+
+\subsection{Targeted Runtime Improvements Produced Better Signal}
+
+After improving command-family inference, interpreter handling, temporary config support, and traceback parsing, we obtained stronger runtime behavior on selected smoke cases. One representative example was the \texttt{pylint-dev\_\_pylint-7228} smoke run.
+
+The runtime system inferred a real Pylint CLI invocation, materialized a temporary \texttt{.pylintrc} from the issue text, reached the intended execution path, and recovered a meaningful traceback over relevant Pylint files.
+
+The run was still blocked by an environment issue (\texttt{ModuleNotFoundError: No module named 'tomlkit'}). This should be interpreted honestly as a weakness of the current runtime setup rather than as evidence about model reasoning alone: in a single manually curated repro, installing the missing package would likely have been straightforward. The reason we keep this example is different. It shows that benchmark-scale runtime support requires a reliable per-repository environment-preparation strategy, not just better prompting. In other words, the failure had moved from ``we cannot infer the command'' to ``we do not yet have robust automated environment bootstrapping.''
+
+\subsection{Instrumented Debugging Was Operationally Feasible}
+
+We also implemented temporary instrumentation patches: generate patch, apply with \texttt{git apply}, run the repro, parse logs, and revert with \texttt{git apply -R}. The patch lifecycle was safe enough in smoke tests, but instrumentation did not yet produce a benchmark-scale improvement. Its value at this stage is methodological: it points to a plausible next step for a more realistic debugging workflow.
+
+\section{Discussion}
+
+\subsection{What Failed}
+
+The original strong-form hypothesis failed:
+
+\begin{itemize}[leftmargin=1.5em]
+\item graph context alone did not produce reliable localization;
+\item even improved graph completeness did not fix the grounding problem; and
+\item repo-wide semantic enrichment was operationally impractical.
+\end{itemize}
+
+The stack-trace subgroup strengthens this conclusion rather than weakening it. If graph-only retrieval had become competitive on trace-rich issues, the paper’s conclusion would need to be narrowed to ``graph context has a strong niche.'' That is not what happened. The subgroup result is more consistent with a weaker and more defensible claim: graph structure is useful as one component of a developer workflow, but insufficient as the primary localization strategy even on issues with explicit execution anchors.
+
+\subsection{What Worked}
+
+Four design principles worked well.
+
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{Deterministic evidence before LLM synthesis.} Exact symbol lookup, file/path lookup, and grep were more valuable than graph retrieval alone.
+\item \textbf{File-first comparison before region selection.} For many cases, separating file choice from region choice reduced drift.
+\item \textbf{Bounded graph expansion after deterministic seeds.} The graph was helpful once good candidates already existed. It was not the right first tool.
+\item \textbf{Developer-style narrative rendering.} The most effective prompts did not look like giant code dumps. They looked like short debugging briefs: issue statement, extracted anchors, ranked candidate files, and bounded implementation context.
+\end{enumerate}
+
+\subsection{Why This Matters}
+
+The broader implication is that repository-level bug localization should be modeled as a developer workflow rather than as a graph-retrieval problem. Developers do not debug by querying an abstract graph in isolation. They read the issue, extract anchors, search for symbols and files, grep for literals and errors, compare plausible files, inspect nearby implementation sites, and only then synthesize a localization hypothesis. Our results suggest that software engineering agents benefit from mirroring that process.
+
+\section{Threats to Validity}
+
+This work has several limitations.
+
+\subsection{Sample Size and Sample Symmetry}
+
+The main graph-first baseline used 93 completed instances while the best workflow run used 95. This mismatch is not ideal and should be kept explicit in any submission.
+
+\subsection{Iterative Tuning}
+
+The workflow was improved iteratively, including failed-subset loops. Although the final system is not a bag of issue-specific hard-coded patches, some tuning decisions were informed by repeated miss analysis. This creates some risk of overfitting.
+
+\subsection{Semantic Evaluation}
+
+Several important metrics are semantic rather than exact. This better reflects whether the system identified the right conceptual fix, but it also introduces evaluation subjectivity.
+
+\subsection{Limited External Baselines}
+
+This paper compares graph-first and workflow-based systems developed within the same project. It does not yet provide a strict apples-to-apples comparison against recent external localization systems such as CoSIL on the same exact sample and evaluation protocol.
+
+\subsection{Runtime Results Are Preliminary}
+
+The runtime and instrumentation results are exploratory and should not be over-claimed. They are best interpreted as evidence about the next frontier, not as a validated benchmark contribution.
+
+\section{Reproducibility and Artifacts}
+
+This project emphasizes traceability. The submission version of this paper should therefore be accompanied by a public artifact release containing the frozen sample manifests, the graph-first aggregate report and per-instance outputs, the static developer-workflow aggregate report and per-instance outputs, the stack-trace subgroup extractor and comparison report, the retrospective and publication-support notes, and the scripts used to build reports and subgroup analyses.
+
+For publication, these materials should point to a public GitHub repository for code, manifests, and report-generation scripts, such as \url{https://github.com/LevyGuy/graph-context-is-not-enough}, together with an archived artifact snapshot, for example on Zenodo, for the exact benchmark outputs used in the paper.
+
+Per-instance prompts, summaries, selector decisions, and other detailed logs are valuable for auditability, but they can be released as artifact bundles rather than embedded directly in the paper.
+
+\section{Conclusion}
+
+This paper began as an attempt to show that graph-centric context engineering could dramatically improve LLM bug localization. It did not.
+
+Instead, the experiments support a different conclusion:
+
+\begin{itemize}[leftmargin=1.5em]
+\item graph-only structural context is not enough;
+\item a broader static developer workflow materially outperforms graph-first retrieval; and
+\item runtime and instrumented debugging remain promising but unfinished.
+\end{itemize}
+
+The main lesson is not that graphs are useless. It is that graphs are a supporting tool, not a complete debugging workflow. The strongest gains came from a workflow that combined deterministic search tools with bounded graph expansion and staged LLM synthesis. That result is both practically useful and scientifically important because it reframes the problem: the right unit of abstraction for SWE-bench localization is not just repository structure, but the broader workflow by which developers gather, compare, and validate evidence.
+
+\section*{Acknowledgments}
+
+Replace this section with the final acknowledgments, funding statement, and any model or provider disclosure required by the target venue.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
