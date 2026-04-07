@@ -1,0 +1,56 @@
+.env
+.env.*
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.tmp
+*.log
+
+# Local discussions and notes
+council/
+llm_conversation/
+thoughts.md
+
+# Local run outputs
+logs/
+tools/
+gpt-*.json
+
+# Large or ephemeral artifact stores
+artifacts/debug/
+artifacts/hf_home/
+artifacts/indexes/
+artifacts/logs/
+artifacts/tools/
+artifacts/vector_db/
+artifacts/workspaces/
+artifacts/*.db
+artifacts/*.db-*
+artifacts/*-journal
+artifacts/*-shm
+artifacts/*-wal
+*.db
+*.db-*
+
+# Keep only the publication-facing metadata subset
+artifacts/metadata/*
+!artifacts/metadata/localization_study_95_structural_reused_ready.jsonl
+!artifacts/metadata/stacktrace_subset.jsonl
+!artifacts/metadata/stacktrace_subset_instance_ids.json
+!artifacts/metadata/stacktrace_subset_manifest.json
+
+# Keep only the publication-facing report subset
+artifacts/reports/*
+!artifacts/reports/GRAPH_AND_WORKFLOW_RETROSPECTIVE.md
+!artifacts/reports/GRAPH_CONTEXT_IS_NOT_ENOUGH_ARXIV_DRAFT.md
+!artifacts/reports/MIDPOINT_PUBLICATION_ASSESSMENT.md
+!artifacts/reports/RESEARCH_UPDATE_HYPOTHESIS_EXAMPLES_AND_CURRENT_STATE.md
+!artifacts/reports/STACKTRACE_SUBGROUP_INTERPRETATION.md
+!artifacts/reports/developer_workflow_full95_v2_region.json
+!artifacts/reports/developer_workflow_full95_v2_region.md
+!artifacts/reports/localization_study_95_structural_reused_ready.json
+!artifacts/reports/localization_study_95_structural_reused_ready.md
+!artifacts/reports/stacktrace_subset_comparison.json
+!artifacts/reports/stacktrace_subset_comparison.md
