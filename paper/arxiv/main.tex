@@ -184,7 +184,7 @@ Graph structure remains present, but only as one tool in a broader workflow.
 To make the workflow concrete, we use one representative issue, \texttt{django\_\_django-13933}. The issue states that \texttt{ModelChoiceField} does not include the invalid value when raising \texttt{ValidationError}. This case is useful because it shows the intended path from structural index data to graph summaries to a developer-style prompt.
 
 \paragraph{SCIP-style index evidence.}
-The SCIP-style index for \texttt{django/forms/models.py} includes occurrences such as references to \texttt{ValidationError}, \texttt{ValidationError\#code}, and \texttt{ValidationError\#message}. This already tells us that \texttt{django/forms/models.py} imports and uses \texttt{ValidationError}, which makes it structurally relevant. However, it does not yet tell us whether this is the correct implementation file or merely an adjacent consumer.
+The SCIP-style index for \texttt{django/forms/models.py} includes occurrences referencing \texttt{ValidationError}, \texttt{ValidationError\#code}, and \texttt{ValidationError\#message}. This tells us that \texttt{django/forms/models.py} imports and uses \texttt{ValidationError}, which makes it structurally relevant. However, it does not yet tell us whether this is the correct implementation file or only an adjacent consumer.
 
 \paragraph{SQL row with short semantic descriptions.}
 The structural graph database produces compact semantic rows for the same issue:
@@ -303,7 +303,7 @@ The paired comparison covers 22 issues present in both the graph-first and tool-
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{lcccc}
+\begin{tabular}{p{0.26\linewidth}cccc}
 \toprule
 Metric & Graph full & Graph trace subset & Workflow full & Workflow trace subset \\
 \midrule
